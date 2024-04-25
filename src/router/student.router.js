@@ -14,7 +14,6 @@ const router = Router();
 router.route("/create").post(verifyJWT, isHOD, createStudent);
 router.route("/update/:id").post(verifyJWT, isHOD, updateStudent);
 router.route("/profile/:id").get(verifyJWT, getStudentById);
-router.route("/profile/:id").get(verifyJWT, getStudentById);
 router.route("/get-all").get(verifyJWT, getAllDeptStudents);
 router.route("/get-all-by-sem-year").get(verifyJWT, getStudentsBySemAndYear);
 

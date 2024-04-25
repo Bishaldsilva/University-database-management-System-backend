@@ -29,7 +29,8 @@ const createEnrollment = asyncHandler(async (req, res) => {
         })
     }
 
-    if(student.dept_id !== req.user.dept_id || subject.dept_id !== req.user.dept_id){
+    if(student.dept_id.toString() != req.user.dept_id.toString() || subject.dept_id.toString() != req.user.dept_id.toString()){
+        console.log(student.dept_id, subject.dept_id, req.user.dept_id);
         return res.status(400).json({
             "success": false,
             "message": "you are not allowed to enroll this student with this subject"
@@ -56,6 +57,38 @@ const createEnrollment = asyncHandler(async (req, res) => {
     })
 })
 
+const updateEnrollment = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+
+    const enroll = await Enrollment.findById(id);
+    if(!enroll){
+        return res.status(500).json({
+            "success": false,
+            "message": "An error occured while creating enrollment"
+        })
+    }
+
+    const student = await Student.findById(enroll.student_id);
+    const subject = await Subject.findById(enroll.subject_id);
+
+    if(student.dept_id.toString() != req.user.dept_id.toString() || subject.dept_id.toString() != req.user.dept_id.toString()){
+        console.log(student.dept_id, subject.dept_id, req.user.dept_id);
+        return res.status(400).json({
+            "success": false,
+            "message": "you are not allowed to enroll this student with this subject"
+        })
+    }
+
+    enroll.isActive = false;
+    await enroll.save({ validateBeforeSave: true })
+
+    return res.status(200).json({
+        "success": true,
+        "message": "Enrollment updated successfully"
+    })
+})
+
 export {
-    createEnrollment
+    createEnrollment,
+    updateEnrollment
 }

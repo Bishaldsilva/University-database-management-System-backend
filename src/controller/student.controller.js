@@ -45,6 +45,13 @@ const updateStudent = asyncHandler(async (req, res) => {
         })
     }
 
+    if(stu.dept_id !== req.user.dept_id){
+        return res.status(400).json({
+            "success": false,
+            "message": "You are not allowed to change details of the students residing in other departments"
+        })
+    }
+
     const student = await Student.findByIdAndUpdate(
         id,
         {
