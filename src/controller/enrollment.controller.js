@@ -2,6 +2,7 @@ import asyncHandler from "../utils/asyncHandler.js"
 import { Student } from "../model/student.model.js"
 import { Subject } from "../model/subject.model.js"
 import { Enrollment } from "../model/enrollment.model.js"
+import mongoose from "mongoose"
 
 const createEnrollment = asyncHandler(async (req, res) => {
     const { roll_no, code } = req.body;
@@ -30,7 +31,6 @@ const createEnrollment = asyncHandler(async (req, res) => {
     }
 
     if(student.dept_id.toString() != req.user.dept_id.toString() || subject.dept_id.toString() != req.user.dept_id.toString()){
-        console.log(student.dept_id, subject.dept_id, req.user.dept_id);
         return res.status(400).json({
             "success": false,
             "message": "you are not allowed to enroll this student with this subject"
@@ -62,9 +62,9 @@ const updateEnrollment = asyncHandler(async (req, res) => {
 
     const enroll = await Enrollment.findById(id);
     if(!enroll){
-        return res.status(500).json({
+        return res.status(400).json({
             "success": false,
-            "message": "An error occured while creating enrollment"
+            "message": "no enrollments available"
         })
     }
 
@@ -72,7 +72,6 @@ const updateEnrollment = asyncHandler(async (req, res) => {
     const subject = await Subject.findById(enroll.subject_id);
 
     if(student.dept_id.toString() != req.user.dept_id.toString() || subject.dept_id.toString() != req.user.dept_id.toString()){
-        console.log(student.dept_id, subject.dept_id, req.user.dept_id);
         return res.status(400).json({
             "success": false,
             "message": "you are not allowed to enroll this student with this subject"
@@ -88,7 +87,49 @@ const updateEnrollment = asyncHandler(async (req, res) => {
     })
 })
 
+const getEnrollById = asyncHandler(async (req, res) => {
+    const { student_id } = req.params;
+
+    const student = await Student.findById(student_id);
+    const enrolls = await Enrollment.aggregate([
+        {
+          $match: {
+            student_id: new mongoose.Types.ObjectId(student_id),
+            isActive: true
+          }
+        },
+        {
+          $lookup: {
+            from: "subjects",
+            localField: "subject_id",
+            foreignField: "_id",
+            as: "sub_details"
+          }
+        },
+        {
+          $addFields: {
+            sub_details: {
+              $first: "$sub_details"
+            }
+          }
+        }
+    ])
+    if(enrolls == []){
+        return res.status(400).json({
+            "success": false,
+            "message": "no enrollments available"
+        })
+    }
+
+    return res.status(200).json({
+        "success": true,
+        student,
+        enrolls
+    })
+})
+
 export {
     createEnrollment,
-    updateEnrollment
+    updateEnrollment,
+    getEnrollById
 }
