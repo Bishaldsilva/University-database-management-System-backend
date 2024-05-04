@@ -20,6 +20,7 @@ import teacherRouter from "./router/teacher.router.js"
 import studentRouter from "./router/student.router.js"
 import enrollmentRouter from "./router/enrollment.router.js"
 import routineRouter from "./router/routine.router.js"
+import attendanceRouter from "./router/attendance.router.js"
 
 app.use("/teacher",teacherRouter)
 app.use("/department", departmentRouter)
@@ -27,6 +28,7 @@ app.use("/subject", subjectRouter)
 app.use("/student", studentRouter)
 app.use("/enrollment", enrollmentRouter)
 app.use("/routine", routineRouter)
+app.use("/attendance", attendanceRouter)
 
 
 

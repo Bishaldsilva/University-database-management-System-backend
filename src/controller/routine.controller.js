@@ -166,7 +166,7 @@ const getRoutineBySemAndYear = asyncHandler(async (req, res) => {
         }
       }
     ])
-    if(routines == []){
+    if(routines.length == 0){
       return res.status(400).json({
         "success": false,
         "message": "no routine found"

@@ -114,7 +114,7 @@ const getEnrollById = asyncHandler(async (req, res) => {
           }
         }
     ])
-    if(enrolls == []){
+    if(enrolls.length == 0){
         return res.status(400).json({
             "success": false,
             "message": "no enrollments available"
