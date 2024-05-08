@@ -21,6 +21,8 @@ import studentRouter from "./router/student.router.js"
 import enrollmentRouter from "./router/enrollment.router.js"
 import routineRouter from "./router/routine.router.js"
 import attendanceRouter from "./router/attendance.router.js"
+import examResultRouter from "./router/examResult.router.js"
+
 
 app.use("/teacher",teacherRouter)
 app.use("/department", departmentRouter)
@@ -29,6 +31,7 @@ app.use("/student", studentRouter)
 app.use("/enrollment", enrollmentRouter)
 app.use("/routine", routineRouter)
 app.use("/attendance", attendanceRouter)
+app.use("/examResult", examResultRouter)
 
 
 

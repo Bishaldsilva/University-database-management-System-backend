@@ -13,6 +13,14 @@ const attendanceSchema = new Schema({
         type: Date,
         required: true
     },
+    sem: {
+        type: Number,
+        required: true
+    },
+    year: {
+        type: Number,
+        required: true
+    },
     status: {
         type: String,
         default: "p"

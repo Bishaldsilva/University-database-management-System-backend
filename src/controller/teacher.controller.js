@@ -37,7 +37,7 @@ const registerTeacher = asyncHandler(async (req, res) => {
 
 const loginTeacher = asyncHandler(async (req, res) => {
     const token = req.cookies?.accessToken || req.header("Authorization")?.replace("Bearer ","")
-
+    
     if(token){
         return res.status(400).json({
             "success": false,
@@ -73,6 +73,7 @@ const loginTeacher = asyncHandler(async (req, res) => {
     const loggedInTeacher = await Teacher.findById(teacher._id).select("-password");
 
     const options = {
+        sameSite: 'None',
         httpOnly: true,
         secure: true
     }

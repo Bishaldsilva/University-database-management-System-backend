@@ -1,12 +1,12 @@
 import asyncHandler from "../utils/asyncHandler.js"
 import { Student } from "../model/student.model.js"
 import { Subject } from "../model/subject.model.js"
-import { Attendance } from "../model/attendance.model.js";
+import { ExamResult } from "../model/examResult.model.js";
 
-const createAttendance = asyncHandler(async (req, res) => {
-    const { roll_no, code, date, status, sem, year } = req.body;
+const createResult = asyncHandler(async (req, res) => {
+    const { roll_no, code, exam_date, score, sem, year } = req.body;
 
-    if(roll_no == "" || code == "" || date == "" || status == "" || sem == "" || year == ""){
+    if(roll_no == "" || code == "" || exam_date == "" || score == "" || sem == "" || year == ""){
         return res.status(400).json({
             "success": false,
             "message": "all fields are required"
@@ -36,38 +36,41 @@ const createAttendance = asyncHandler(async (req, res) => {
         })
     }
 
-    const attendance = await Attendance.create({
+    const result = await ExamResult.create({
         student_id: student._id,
         subject_id: subject._id,
-        date: new Date(date), status,
+        exam_date: new Date(exam_date),
+        score: Number(score),
         sem: Number(sem),
         year: Number(year),
+        isPassed: Number(score) >= 50
     })
-    if(!attendance){
+    if(!result){
         return res.status(500).json({
             "success": false,
-            "message": "something went wrong while creating the attendance"
+            "message": "something went wrong while creating the result"
         })
     }
 
     return res.status(200).json({
         "success": true,
-        attendance,
-        "message": "attendance created successfully"
+        result,
+        "message": "result created successfully"
     })
 })
 
-const getAttendanceBySemAndYear = asyncHandler(async (req, res) => {
+const getResult = asyncHandler(async(req, res) => {
 
-    const { sem, year, date } = req.body;
+    const { roll_no, sem, year } = req.body;
 
-    if(sem == "" || year == "" || date == ""){
+    if(roll_no == "" || sem == "" || year == ""){
         return res.status(400).json({
             "success": false,
             "message": "all fields are required"
         })
     }
-    const attendances = await Attendance.aggregate([
+
+    const result = await ExamResult.aggregate([
         {
           $lookup: {
             from: "students",
@@ -86,49 +89,73 @@ const getAttendanceBySemAndYear = asyncHandler(async (req, res) => {
         },
         {
           $addFields: {
-                student: {
-                $arrayElemAt: ["$student.name", 0]
-              },
-              dept_id: {
-                $arrayElemAt: ["$student.dept_id", 0]
-              },
-                subject: {
-                $arrayElemAt: ["$subject.name", 0]
-              }
+            student: {
+                  $arrayElemAt: ["$student.roll_no", 0]
+            },
+            subject: {
+              $arrayElemAt: ["$subject", 0]
+            }
           }
         },
         {
-            $match: {
-              sem: parseInt(sem),
-              year: parseInt(year),
-              dept_id: req.user.dept_id,
-              date: new Date(date)
-            }
+          $match: {
+            student: roll_no,
+            sem: Number(sem),
+            year: Number(year)
+          }
         },
         {
           $project: {
-            student: 1,
             subject: 1,
-            date: 1,
-            dept_id: 1
+            score: 1,
+            exam_date: 1
+          }
+        }
+    ])
+
+    const cgpa = await ExamResult.aggregate([
+        {
+          $lookup: {
+            from: "students",
+            localField: "student_id",
+            foreignField: "_id",
+            as: "student"
+          }
+        },
+        {
+          $addFields: {
+            student: {
+                  $arrayElemAt: ["$student.roll_no", 0]
+            }
+          }
+        },
+        {
+          $match: {
+            student: roll_no,
+            sem: Number(sem),
+            year: Number(year)
+          }
+        },
+        {
+          $group: {
+            _id: null,
+            cgpa: {
+              $avg: "$score"
+            }
           }
         }
       ])
 
-    if(attendances.length == 0){
-        return res.status(400).json({
-            "success": false,
-            "message": "no atendance found"
-        })
-    }
+    const percentage = cgpa[0].cgpa
 
     return res.status(200).json({
         "success": true,
-        attendances
+        result,
+        percentage
     })
 })
 
 export {
-    createAttendance,
-    getAttendanceBySemAndYear
+    createResult,
+    getResult
 }

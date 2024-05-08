@@ -17,6 +17,14 @@ const examResultSchema = new Schema({
         type: Number,
         required: true
     },
+    sem: {
+        type: Number,
+        required: true
+    },
+    year: {
+        type: Number,
+        required: true
+    },
     isPassed: {
         type: Boolean,
         required: true
