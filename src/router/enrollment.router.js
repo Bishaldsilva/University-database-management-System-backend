@@ -6,7 +6,7 @@ import { verifyJWT } from "../middleware/auth.middleware.js"
 const router = Router()
 
 router.route("/create").post(verifyJWT, createEnrollment)
-router.route("/update").post(verifyJWT, updateEnrollment)
+router.route("/update/:id").post(verifyJWT, updateEnrollment)
 router.route("/:student_id").get(verifyJWT, getEnrollById)
 
 export default router;

@@ -3,7 +3,7 @@ import { createDepartment, getDepartment } from "../controller/department.contro
 
 const router = Router()
 
-router.route("/create").post(createDepartment)
+// router.route("/create").post(createDepartment)
 router.route("/get").get(getDepartment)
 
 export default router
