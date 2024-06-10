@@ -113,6 +113,13 @@ const getResult = asyncHandler(async(req, res) => {
         }
     ])
 
+    if(result.length == 0){
+      return res.status(400).json({
+          "success": false,
+          "message": "result doesn't exist"
+      })
+  }
+
     const cgpa = await ExamResult.aggregate([
         {
           $lookup: {
@@ -146,7 +153,7 @@ const getResult = asyncHandler(async(req, res) => {
         }
       ])
 
-    const percentage = cgpa[0].cgpa
+    const percentage = cgpa[0]?.cgpa
 
     return res.status(200).json({
         "success": true,
